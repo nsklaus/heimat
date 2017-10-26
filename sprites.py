@@ -55,11 +55,9 @@ class Player(pg.sprite.Sprite):
             self.rot_speed = st.PLAYER_ROT_SPEED
             self.game.set_mask(self.rot)
 
-
         if keys[pg.K_RIGHT]:
             self.rot_speed = -st.PLAYER_ROT_SPEED
             self.game.set_mask(self.rot)
-
 
         if keys[pg.K_UP]:
             self.vel = vec(st.PLAYER_SPEED, 0).rotate(-self.rot)
@@ -90,7 +88,6 @@ class Player(pg.sprite.Sprite):
         self.damage_alpha = chain(st.DAMAGE_ALPHA * 4)
 
     def update(self):
-        # if not self.game.room_switch:
         self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
 
@@ -108,7 +105,6 @@ class Player(pg.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
-        # self.game.light_mask =  pg.transform.rotate(self.game.light_mask, self.rot)
 
     def add_health(self, amount):
         self.health += amount
@@ -190,6 +186,7 @@ class Bullet(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.pos = vec(pos)
+        self.dir = dir
         self.rect.center = pos
         #spread = uniform(-GUN_SPREAD, GUN_SPREAD)
         self.vel = dir * st.WEAPONS[game.player.weapon]['bullet_speed'] * uniform(0.9, 1.1)

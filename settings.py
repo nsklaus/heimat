@@ -1,7 +1,5 @@
 import pygame as pg
-# vec = pg.math.Vector2
 from pygame.math import Vector2 as vec
-# import pygame.math as math
 
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)

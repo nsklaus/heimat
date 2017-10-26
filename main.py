@@ -21,6 +21,7 @@ class Game:
         self.map_folder = path.join(self.game_folder, 'maps')
         self.title_font = path.join(self.img_folder, 'ZOMBIE.TTF')
         self.hud_font = path.join(self.img_folder, 'Impacted2.0.ttf')
+        self.player_rot = 0
         self.previous_room = None
         self.current_room = 'map1.tmx'
         self.next_room =''
@@ -41,12 +42,10 @@ class Game:
         if rot is None:
             self.light_mask = pg.image.load(
                 path.join(self.img_folder, st.LIGHT_MASK)).convert_alpha()
-            # self.light_mask = pg.transform.scale(self.light_mask, LIGHT_RADIUS)
             self.light_rect = self.light_mask.get_rect()
         else:
             self.light_mask = pg.image.load(
                 path.join(self.img_folder, st.LIGHT_MASK)).convert_alpha()
-            # self.light_mask = pg.transform.scale(self.light_mask, LIGHT_RADIUS)
             self.light_mask = pg.transform.rotate(self.light_mask, rot)
             self.light_rect = self.light_mask.get_rect()
 
@@ -104,14 +103,11 @@ class Game:
         self.items = pg.sprite.Group()
         self.load_image()
         self.load_sound()
-
-        # if self.initial:
-        #     self.player = sp.Player(self, 64, 128)
-        #     self.initial = False
         self.player = sp.Player(self, 128, 128)
+        self.player.rot = self.player_rot # remember facing direction when entering new rooms
         self.load_map(map_name)
         self.camera = tm.Camera(self.map.width, self.map.height)
-        self.set_mask()
+        self.set_mask() # torchlight
         self.draw_debug = False
         self.paused = False
         self.night = False
@@ -207,9 +203,10 @@ class Game:
                     self.room_switch = True
                     self.previous_room = self.current_room
                     self.next_room = new_map
+                    self.player_rot = self.player.rot
                     self.new(new_map)
                 else:
-                    print(f"room {new_map} doesn't exist yet")
+                    print(f"room ---{new_map} doesn't exist yet")
 
     def hit_mob(self):
         if self.player:
@@ -234,7 +231,11 @@ class Game:
             #            * len(hits[hit])
             for bullet in hits[mob]:
                 mob.health -= bullet.damage
+                # mob.vel += sp.vec(bullet.dir[0]*100, bullet.dir[1]*100)
+            # mob gets stopped
             mob.vel = sp.vec(0, 0)
+            # mob get knockback from bullet
+            mob.pos += sp.vec(bullet.dir[0]*10, bullet.dir[1]*10)
 
     def update(self):
         # update portion of the game loop
@@ -293,6 +294,7 @@ class Game:
                     # debug output:
                     print("all_sprite_size={}".format(len(self.all_sprites.sprites())))
                     print(f"current_room={self.current_room} || previous_room={self.previous_room}")
+                    print(f"self.player_rot={self.player_rot}")
                     mob_nbr = 0
                     player_nbr = 0
                     for sprite in self.all_sprites:
