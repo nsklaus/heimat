@@ -19,7 +19,7 @@ FPS = 60
 TITLE = "Tilemap Demo"
 BGCOLOR = BROWN
 
-TILESIZE = 64
+TILESIZE = 16
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE
 
@@ -27,7 +27,16 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 280
 PLAYER_ROT_SPEED = 200
-PLAYER_IMG = 'manBlue_gun.png'
+# PLAYER_IMG = 'manBlue_gun.png'
+# survivor-move_handgun_0
+# PLAYER_IMG = ['manBlue_gun.png', 'manBlue_gun2.png']
+PLAYER_IMG = ['survivor-move_handgun_0.png', 'survivor-move_handgun_1.png', 'survivor-move_handgun_3.png',
+              'survivor-move_handgun_4.png', 'survivor-move_handgun_4.png', 'survivor-move_handgun_6.png',
+              'survivor-move_handgun_7.png', 'survivor-move_handgun_8.png', 'survivor-move_handgun_9.png',
+              'survivor-move_handgun_10.png', 'survivor-move_handgun_11.png', 'survivor-move_handgun_12.png',
+              'survivor-move_handgun_13.png', 'survivor-move_handgun_14.png', 'survivor-move_handgun_15.png',
+              'survivor-move_handgun_16.png', 'survivor-move_handgun_17.png', 'survivor-move_handgun_18.png',
+              'survivor-move_handgun_19.png']
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
 BARREL_OFFSET = vec(30, 10)
 
@@ -70,7 +79,8 @@ DAMAGE_ALPHA = [i for i in range(0, 255, 55)]
 NIGHT_COLOR = (60, 60, 60)
 LIGHT_RADIUS = (500, 500)
 # LIGHT_MASK = "light_350_soft.png"
-LIGHT_MASK = "torch2.png"  # "light_350_med.png"  #"torch2.png"
+LIGHT_MASK = "light_350_med.png"
+# LIGHT_MASK = "torch2.png"  # "light_350_med.png"  #"torch2.png"
 
 # Layers
 WALL_LAYER = 1

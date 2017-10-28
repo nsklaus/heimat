@@ -5,6 +5,7 @@ from tilemap import collide_hit_rect
 import pytweening as tween
 from itertools import chain
 from pygame.math import Vector2 as vec
+from itertools import cycle
 
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
@@ -33,7 +34,7 @@ class Player(pg.sprite.Sprite):
         self.groups = game.all_sprites
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.player_img
+        self.image = game.player_img[0]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = st.PLAYER_HIT_RECT
@@ -42,30 +43,44 @@ class Player(pg.sprite.Sprite):
         self.pos = vec(x, y)
         self.rot = 0
         self.last_shot = 0
+        self.last_anim = 0
+        self.current_image = self.game.player_img[0]
+        self.pool = cycle(self.game.player_img)
         self.health = st.PLAYER_HEALTH
         self.weapon = 'pistol'
         self.damaged = False
 
+    def animate(self):
+        now = pg.time.get_ticks()
+        if now - self.last_anim > 20:
+            self.current_image = next(self.pool)
+            self.last_anim = now
+
     def get_keys(self):
         self.rot_speed = 0
         self.vel = vec(0, 0)
+
         keys = pg.key.get_pressed()
 
         if keys[pg.K_LEFT]:
             self.rot_speed = st.PLAYER_ROT_SPEED
-            self.game.set_mask(self.rot)
+            # self.game.set_mask(self.rot)
 
-        if keys[pg.K_RIGHT]:
+        elif keys[pg.K_RIGHT]:
             self.rot_speed = -st.PLAYER_ROT_SPEED
-            self.game.set_mask(self.rot)
+            # self.game.set_mask(self.rot)
 
-        if keys[pg.K_UP]:
+        elif keys[pg.K_UP]:
             self.vel = vec(st.PLAYER_SPEED, 0).rotate(-self.rot)
 
-        if keys[pg.K_DOWN]:
+        elif keys[pg.K_DOWN]:
             self.vel = vec(-st.PLAYER_SPEED / 2, 0).rotate(-self.rot)
-        if keys[pg.K_SPACE]:
+
+        elif keys[pg.K_SPACE]:
             self.shoot()
+
+        if any([keys[pg.K_DOWN], keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT]]):
+            self.animate()
 
     def shoot(self):
         now = pg.time.get_ticks()
@@ -91,7 +106,8 @@ class Player(pg.sprite.Sprite):
         self.get_keys()
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
 
-        self.image = pg.transform.rotate(self.game.player_img, self.rot)
+        self.image = pg.transform.rotate(self.current_image, self.rot)
+
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
@@ -253,9 +269,10 @@ class Item(pg.sprite.Sprite):
 
     def update(self):
         # bobbing motion
-        offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
-        self.rect.centery = self.pos.y + offset * self.dir
-        self.step += st.BOB_SPEED
-        if self.step > st.BOB_RANGE:
-            self.step = 0
-            self.dir *= -1
+        # offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
+        # self.rect.centery = self.pos.y + offset * self.dir
+        # self.step += st.BOB_SPEED
+        # if self.step > st.BOB_RANGE:
+        #     self.step = 0
+        #     self.dir *= -1
+        pass

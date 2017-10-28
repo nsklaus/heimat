@@ -50,7 +50,7 @@ class Game:
             self.light_rect = self.light_mask.get_rect()
 
     def load_image(self):
-        self.player_img = pg.image.load(path.join(self.img_folder, st.PLAYER_IMG)).convert_alpha()
+        # self.player_img = pg.image.load(path.join(self.img_folder, st.PLAYER_IMG)).convert_alpha()
         self.bullet_images = {}
         self.bullet_images['lg'] = pg.image.load(path.join(self.img_folder, st.BULLET_IMG)).convert_alpha()
         self.bullet_images['sm'] = pg.transform.scale(self.bullet_images['lg'], (10, 10))
@@ -58,9 +58,14 @@ class Game:
         self.splat = pg.image.load(path.join(self.img_folder, st.SPLAT)).convert_alpha()
         self.splat = pg.transform.scale(self.splat, (64, 64))
 
+        self.player_img = []
+        for img in st.PLAYER_IMG:
+            self.player_img.append(pg.image.load(path.join(self.img_folder, img)).convert_alpha())
+
         self.gun_flashes = []
         for img in st.MUZZLE_FLASHES:
             self.gun_flashes.append(pg.image.load(path.join(self.img_folder, img)).convert_alpha())
+
         self.item_images = {}
         for item in st.ITEM_IMAGES:
             self.item_images[item] = pg.image.load(path.join(self.img_folder, st.ITEM_IMAGES[item])).convert_alpha()
@@ -239,11 +244,11 @@ class Game:
 
     def update(self):
         # update portion of the game loop
-            self.all_sprites.update()
-            self.camera.update(self.player)
-            self.hit_item()
-            self.hit_mob()
-            self.hit_bullet()
+        self.all_sprites.update()
+        self.camera.update(self.player)
+        self.hit_item()
+        self.hit_mob()
+        self.hit_bullet()
 
     def render_fog(self):
         # draw the light mask (gradient) onto fog image
@@ -253,7 +258,7 @@ class Game:
         self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
 
     def draw(self):
-        pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+        # pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
         self.screen.blit(self.map_img, self.camera.apply(self.map))
         for sprite in self.all_sprites:
             if isinstance(sprite, sp.Mob):
@@ -264,6 +269,7 @@ class Game:
                     pg.draw.circle(self.screen, st.RED, (my_x, my_y), st.DETECT_RADIUS, 2)
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             if self.draw_debug:
+                self.draw_text("{:.2f}".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 50, 30)
                 pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         if self.draw_debug:
             for wall in self.walls:
@@ -290,6 +296,9 @@ class Game:
                     self.paused = not self.paused
                 if event.key == pg.K_n:
                     self.night = not self.night
+                if event.key == pg.K_f:
+                    if pg.display.get_driver()=='x11':
+                        pg.display.toggle_fullscreen()
                 if event.key == pg.K_d:
                     # debug output:
                     print("all_sprite_size={}".format(len(self.all_sprites.sprites())))
