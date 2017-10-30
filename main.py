@@ -115,7 +115,7 @@ class Game:
         self.set_mask() # torchlight
         self.draw_debug = False
         self.paused = False
-        self.night = False
+        self.night = True
 
     def load_map(self, map_name):
         if map_name is None:

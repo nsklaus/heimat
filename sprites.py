@@ -64,11 +64,11 @@ class Player(pg.sprite.Sprite):
 
         if keys[pg.K_LEFT]:
             self.rot_speed = st.PLAYER_ROT_SPEED
-            # self.game.set_mask(self.rot)
+            self.game.set_mask(self.rot)
 
         elif keys[pg.K_RIGHT]:
             self.rot_speed = -st.PLAYER_ROT_SPEED
-            # self.game.set_mask(self.rot)
+            self.game.set_mask(self.rot)
 
         elif keys[pg.K_UP]:
             self.vel = vec(st.PLAYER_SPEED, 0).rotate(-self.rot)
@@ -165,7 +165,9 @@ class Mob(pg.sprite.Sprite):
             self.rect.center = self.pos
             self.acc = vec(1, 0).rotate(-self.rot)
             self.avoid_mobs()
+            # if self.speed not None:
             self.acc.scale_to_length(self.speed)
+            # vec.scale_to_length()
             self.acc += self.vel * -1
             self.vel += self.acc * self.game.dt
             self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
@@ -276,3 +278,16 @@ class Item(pg.sprite.Sprite):
         #     self.step = 0
         #     self.dir *= -1
         pass
+
+
+class Light(pg.sprite.Sprite):
+    def __init__(self, game, x, y, w, h):
+        self.groups = game.walls
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.rect = pg.Rect(x, y, w, h)
+        self.hit_rect = self.rect
+        self.x = x
+        self.y = y
+        self.rect.x = x
+        self.rect.y = y

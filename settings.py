@@ -79,8 +79,8 @@ DAMAGE_ALPHA = [i for i in range(0, 255, 55)]
 NIGHT_COLOR = (60, 60, 60)
 LIGHT_RADIUS = (500, 500)
 # LIGHT_MASK = "light_350_soft.png"
-LIGHT_MASK = "light_350_med.png"
-# LIGHT_MASK = "torch2.png"  # "light_350_med.png"  #"torch2.png"
+#cLIGHT_MASK = "light_350_med.png"
+LIGHT_MASK = "torch2.png"  # "light_350_med.png"  #"torch2.png"
 
 # Layers
 WALL_LAYER = 1
