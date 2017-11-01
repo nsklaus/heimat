@@ -1,0 +1,35 @@
+
+
+<Surface(64x128x32 SW)> ['__class__', '__copy__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '_pixels_address', 'blit', 'convert', 'convert_alpha', 'copy', 'fill', 'get_abs_offset', 'get_abs_parent', 'get_alpha', 'get_at', 'get_at_mapped', 'get_bitsize', 'get_bounding_rect', 'get_buffer', 'get_bytesize', 'get_clip', 'get_colorkey', 'get_flags', 'get_height', 'get_locked', 'get_locks', 'get_losses', 'get_masks', 'get_offset', 'get_palette', 'get_palette_at', 'get_parent', 'get_pitch', 'get_rect', 'get_shifts', 'get_size', 'get_view', 'get_width', 'lock', 'map_rgb', 'mustlock', 'scroll', 'set_alpha', 'set_at', 'set_clip', 'set_colorkey', 'set_masks', 'set_palette', 'set_palette_at', 'set_shifts', 'subsurface', 'unlock', 'unmap_rgb']
+
+
+---------------------------------------------
+
+Traceback (most recent call last):
+  File "main.py", line 370, in <module>
+    g.run()
+  File "main.py", line 194, in run
+    self.update()
+  File "main.py", line 254, in update
+    self.all_sprites.update()
+  File "/usr/local/lib/python3.6/dist-packages/pygame/sprite.py", line 462, in update
+    s.update(*args)
+  File "/home/nsklaus/Sources/heimat/sprites.py", line 334, in update
+    self.animate()
+  File "/home/nsklaus/Sources/heimat/sprites.py", line 327, in animate
+    new_image = pg.transform.rotate(self.image, self.rot)
+pygame.error: Width or height is too large
+
+---------------------------------------------
+
+['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattr__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_cast_and_set_attributes_from_node_items', '_contains_invalid_property_name', '_log_property_error_message', '_set_properties', 'allow_duplicate_names', 'from_xml_string', 'gid', 'height', 'id', 'image', 'name', 'parent', 'parse_xml', 'properties', 'rotation', 'type', 'visible', 'width', 'x', 'y']
+
+---------------------------------------------
+
+type:  <tilemap.TiledMap object at 0x7fd328e3c940> 
+ ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', 'height', 'make_map', 'rect', 'render', 'tmxdata', 'width']
+
+ ---------------------------------------------
+
+ type:  <tilemap.TiledMap object at 0x7ffae3d11940> 
+  ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattr__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__iter__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_cast_and_set_attributes_from_node_items', '_contains_invalid_property_name', '_log_property_error_message', '_set_properties', 'add_layer', 'add_tileset', 'allow_duplicate_names', 'background_color', 'filename', 'from_xml_string', 'get_layer_by_name', 'get_object_by_name', 'get_tile_gid', 'get_tile_image', 'get_tile_image_by_gid', 'get_tile_locations_by_gid', 'get_tile_properties', 'get_tile_properties_by_gid', 'get_tile_properties_by_layer', 'get_tileset_from_gid', 'gidmap', 'height', 'hexsidelength', 'image_loader', 'imagemap', 'images', 'invert_y', 'layernames', 'layers', 'load_all_tiles', 'map_gid', 'map_gid2', 'maxgid', 'nextobjectid', 'objectgroups', 'objects', 'optional_gids', 'orientation', 'parse_xml', 'properties', 'register_gid', 'reload_images', 'renderorder', 'set_tile_properties', 'staggeraxis', 'tile_properties', 'tiledgidmap', 'tiledversion', 'tileheight', 'tilesets', 'tilewidth', 'version', 'visible_layers', 'visible_object_groups', 'visible_tile_layers', 'width']

@@ -27,6 +27,8 @@ class Game:
         self.next_room =''
         self.room_switch = False
         self.initial = True
+        self.fog = pg.Surface((st.WIDTH, st.HEIGHT))
+        self.fog.fill(st.NIGHT_COLOR)
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
 
@@ -37,67 +39,62 @@ class Game:
         self.screen.blit(text_surface, text_rect)
 
     def set_mask(self, rot=None):
-        self.fog = pg.Surface((st.WIDTH, st.HEIGHT))
-        self.fog.fill(st.NIGHT_COLOR)
-        if rot is None:
-            self.light_mask = pg.image.load(
-                path.join(self.img_folder, st.LIGHT_MASK)).convert_alpha()
-            self.light_rect = self.light_mask.get_rect()
-        else:
-            self.light_mask = pg.image.load(
-                path.join(self.img_folder, st.LIGHT_MASK)).convert_alpha()
+        #self.fog = pg.Surface((st.WIDTH, st.HEIGHT))
+        #self.fog.fill(st.NIGHT_COLOR)
+        self.light_mask = self.get_image(st.LIGHT_MASK)
+        if rot:
             self.light_mask = pg.transform.rotate(self.light_mask, rot)
-            self.light_rect = self.light_mask.get_rect()
+        self.light_rect = self.light_mask.get_rect()
+
+    def get_image(self, name):
+        image = pg.image.load(path.join(self.img_folder, name))
+        image = image.convert_alpha()
+        return image
+
+    def get_sound(self, name, vol=None):
+        sound = pg.mixer.Sound(path.join(self.snd_folder, name))
+        if vol is not None:
+            sound.set_volume(vol)
+        return sound
 
     def load_image(self):
-        # self.player_img = pg.image.load(path.join(self.img_folder, st.PLAYER_IMG)).convert_alpha()
         self.bullet_images = {}
-        self.bullet_images['lg'] = pg.image.load(path.join(self.img_folder, st.BULLET_IMG)).convert_alpha()
-        self.bullet_images['sm'] = pg.transform.scale(self.bullet_images['lg'], (10, 10))
-        self.mob_img = pg.image.load(path.join(self.img_folder, st.MOB_IMG)).convert_alpha()
-        self.splat = pg.image.load(path.join(self.img_folder, st.SPLAT)).convert_alpha()
+        self.item_images = {}
+        self.gun_flashes = []
+        self.player_img = []
+        self.mob_img = []
+
+        self.bullet_images['lg'] = self.get_image(st.BULLET_IMG)
+        # self.mob_img = self.get_image(st.MOB_IMG)
+        self.splat = self.get_image(st.SPLAT)
         self.splat = pg.transform.scale(self.splat, (64, 64))
 
-        self.player_img = []
         for img in st.PLAYER_IMG:
-            self.player_img.append(pg.image.load(path.join(self.img_folder, img)).convert_alpha())
-
-        self.gun_flashes = []
+            self.player_img.append(self.get_image(img))
+        for img in st.MOB_IMG:
+            self.mob_img.append(self.get_image(img))
         for img in st.MUZZLE_FLASHES:
-            self.gun_flashes.append(pg.image.load(path.join(self.img_folder, img)).convert_alpha())
-
-        self.item_images = {}
+            self.gun_flashes.append(self.get_image(img))
         for item in st.ITEM_IMAGES:
-            self.item_images[item] = pg.image.load(path.join(self.img_folder, st.ITEM_IMAGES[item])).convert_alpha()
+            self.item_images[item] = self.get_image(st.ITEM_IMAGES[item])
 
     def load_sound(self):
-        # Sound loading
-        pg.mixer.music.load(path.join(self.music_folder, st.BG_MUSIC))
-        self.effects_sounds = {}
-        for mytype in st.EFFECTS_SOUNDS:
-            self.effects_sounds[mytype] = pg.mixer.Sound(
-                path.join(self.snd_folder, st.EFFECTS_SOUNDS[mytype]))
-        self.weapon_sounds = {}
-        for weapon in st.WEAPON_SOUNDS:
-            self.weapon_sounds[weapon] = []
-            for snd in st.WEAPON_SOUNDS[weapon]:
-                s = pg.mixer.Sound(path.join(self.snd_folder, snd))
-                s.set_volume(0.1)
-                self.weapon_sounds[weapon].append(s)
         self.zombie_moan_sounds = []
-        for snd in st.ZOMBIE_MOAN_SOUNDS:
-            s = pg.mixer.Sound(path.join(self.snd_folder, snd))
-            s.set_volume(0.2)
-            self.zombie_moan_sounds.append(s)
         self.player_hit_sounds = []
-        for snd in st.PLAYER_HIT_SOUNDS:
-            self.player_hit_sounds.append(
-                pg.mixer.Sound(path.join(self.snd_folder, snd)))
         self.zombie_hit_sounds = []
+        self.effects_sounds = {}
+        self.weapon_sounds = {}
+
+        for mytype in st.EFFECTS_SOUNDS:
+            self.effects_sounds[mytype] = self.get_sound(st.EFFECTS_SOUNDS[mytype])
+        for weapon in st.WEAPON_SOUNDS:
+            self.weapon_sounds[weapon] = self.get_sound(st.WEAPON_SOUNDS[weapon], 0.1)
+        for snd in st.ZOMBIE_MOAN_SOUNDS:
+            self.zombie_moan_sounds.append(self.get_sound(snd, 0.2))
+        for snd in st.PLAYER_HIT_SOUNDS:
+            self.player_hit_sounds.append(self.get_sound(snd))
         for snd in st.ZOMBIE_HIT_SOUNDS:
-            s = pg.mixer.Sound(path.join(self.snd_folder, snd))
-            s.set_volume(0.1)
-            self.zombie_hit_sounds.append(s)
+            self.zombie_hit_sounds.append(self.get_sound(snd, 0.1))
 
     def new(self, map_name = None):
         # initialize all variables and do all the setup for a new game
@@ -115,7 +112,7 @@ class Game:
         self.set_mask() # torchlight
         self.draw_debug = False
         self.paused = False
-        self.night = True
+        self.night = False
 
     def load_map(self, map_name):
         if map_name is None:
@@ -137,11 +134,17 @@ class Game:
             obj_center = sp.vec(center_x, center_y)
 
             if tmx_obj.name == 'door':
-                sp.Item(self, obj_center, tmx_obj.name, tmx_obj.link)
+                newpos = self.pos_in_newmap(tmx_obj)
+                image = self.map.tmxdata.get_tile_image_by_gid(tmx_obj.gid)
+                if newpos[1] is 'left' or newpos[1] is 'right':
+                    image = pg.transform.scale(image, (64, 128))
+                elif newpos[1] is 'top' or newpos[1] is 'bottom':
+                    image = pg.transform.scale(image, (128, 64))
+                sp.Door(self, obj_center, tmx_obj.name, image, tmx_obj.link)
                 if tmx_obj.link+'.tmx' == self.previous_room:
-                    newpos = self.pos_in_newmap(tmx_obj)
-                    self.player.pos = sp.vec(newpos)
+                    self.player.pos = sp.vec(newpos[0])
                     self.room_switch = False
+
 
             if tmx_obj.name == 'zombie':
                 sp.Mob(self, obj_center.x, obj_center.y)
@@ -153,32 +156,36 @@ class Game:
                 sp.Item(self, obj_center, tmx_obj.name)
 
     def pos_in_newmap(self, door):
+        newpos = ['','']
         tempx = 0
         tempy = 0
         # door on left side
         if door.x == 0:
             tempx = (door.x + 128)
             tempy = (door.y + 64)
+            newpos[1] = 'left'
         # door on top side
         elif door.x > 0 and door.y == 0:
             tempx = (door.x + 64)
             tempy = (door.y + 128)
+            newpos[1] = 'top'
         # door on bottom side
         elif door.x > 0 and door.y == self.map.height - 64:
             tempx = (door.x + 64)
             tempy = (door.y - 64)
+            newpos[1] = 'bottom'
         # door on right side
         elif door.x == self.map.width - 64 and door.y > 0:
             tempx = (door.x - 64)
             tempy = (door.y + 64)
-
-        newpos = (tempx, tempy)
+            newpos[1] = 'right'
+        newpos[0] = (tempx, tempy)
         return newpos
 
     def run(self):
         # game loop - set self.playing = False to end the game
         self.playing = True
-        pg.mixer.music.play(loops=-1)
+        # pg.mixer.music.play(loops=-1)
         while self.playing:
             self.dt = self.clock.tick(st.FPS) / 1000.0  # fix for Python 2.x
             self.events()
@@ -202,16 +209,18 @@ class Game:
                 self.effects_sounds['health_up'].play()
                 self.player.add_health(st.HEALTH_PACK_AMOUNT)
 
-            if hit.type == 'door' and not self.room_switch:
-                new_map = hit.link+'.tmx'
-                if path.exists(path.join(self.map_folder, new_map)):
-                    self.room_switch = True
-                    self.previous_room = self.current_room
-                    self.next_room = new_map
-                    self.player_rot = self.player.rot
-                    self.new(new_map)
-                else:
-                    print(f"room ---{new_map} doesn't exist yet")
+            if hit.type == 'door':
+                hit.animate()
+                # print("hitting door !")
+            #     new_map = hit.link+'.tmx'
+            #     if path.exists(path.join(self.map_folder, new_map)):
+            #         self.room_switch = True
+            #         self.previous_room = self.current_room
+            #         self.next_room = new_map
+            #         self.player_rot = self.player.rot
+            #         self.new(new_map)
+            #     else:
+            #         print(f"room ---{new_map} doesn't exist yet")
 
     def hit_mob(self):
         if self.player:
@@ -250,6 +259,23 @@ class Game:
         self.hit_mob()
         self.hit_bullet()
 
+    def draw_player_health(self, surf, x, y, pct):
+        if pct < 0:
+            pct = 0
+        BAR_LENGTH = 100
+        BAR_HEIGHT = 20
+        fill = pct * BAR_LENGTH
+        outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
+        if pct > 0.6:
+            col = st.GREEN
+        elif pct > 0.3:
+            col = st.YELLOW
+        else:
+            col = st.RED
+        pg.draw.rect(surf, col, fill_rect)
+        pg.draw.rect(surf, st.WHITE, outline_rect, 2)
+
     def render_fog(self):
         # draw the light mask (gradient) onto fog image
         self.fog.fill(st.NIGHT_COLOR)
@@ -267,9 +293,13 @@ class Game:
                     my_x = self.camera.apply(sprite).centerx
                     my_y = self.camera.apply(sprite).centery
                     pg.draw.circle(self.screen, st.RED, (my_x, my_y), st.DETECT_RADIUS, 2)
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if not isinstance(sprite, sp.Door):
+                self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if isinstance(sprite, sp.Door):
+                self.screen.blit(sprite.new_image, self.camera.apply(sprite))
+                # print(sprite)
             if self.draw_debug:
-                self.draw_text("{:.2f}".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 50, 30)
+                self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
                 pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
         if self.draw_debug:
             for wall in self.walls:
@@ -280,6 +310,7 @@ class Game:
             self.screen.blit(self.dim_screen, (0, 0))
             self.draw_text('Zombies: {}'.format(len(self.mobs)),
                             self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
+        self.draw_player_health(self.screen, 10, 10, self.player.health / st.PLAYER_HEALTH)
         pg.display.flip()
 
     def events(self):

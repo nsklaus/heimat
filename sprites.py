@@ -7,12 +7,13 @@ from itertools import chain
 from pygame.math import Vector2 as vec
 from itertools import cycle
 
+
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
             if hits[0].rect.centerx > sprite.hit_rect.centerx:
-                sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
+                sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2    
             if hits[0].rect.centerx < sprite.hit_rect.centerx:
                 sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
             sprite.vel.x = 0
@@ -88,11 +89,14 @@ class Player(pg.sprite.Sprite):
             self.last_shot = now
             dir = vec(1, 0).rotate(-self.rot)
             pos = self.pos + st.BARREL_OFFSET.rotate(-self.rot)
-            self.vel = vec(-st.WEAPONS[self.weapon]['kickback'], 0).rotate(-self.rot)
+            self.vel = vec(-st.WEAPONS[self.weapon]
+                           ['kickback'], 0).rotate(-self.rot)
             for i in range(st.WEAPONS[self.weapon]['bullet_count']):
-                spread = uniform(-st.WEAPONS[self.weapon]['spread'], st.WEAPONS[self.weapon]['spread'])
-                Bullet(self.game, pos, dir.rotate(spread), st.WEAPONS[self.weapon]['damage'])
-                snd = choice(self.game.weapon_sounds[self.weapon])
+                spread = uniform(-st.WEAPONS[self.weapon]
+                                 ['spread'], st.WEAPONS[self.weapon]['spread'])
+                Bullet(self.game, pos, dir.rotate(spread),
+                       st.WEAPONS[self.weapon]['damage'])
+                snd = self.game.weapon_sounds[self.weapon]
                 if snd.get_num_channels() > 2:
                     snd.stop()
                 snd.play()
@@ -110,7 +114,8 @@ class Player(pg.sprite.Sprite):
 
         if self.damaged:
             try:
-                self.image.fill((255, 255, 255, next(self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
+                self.image.fill((255, 255, 255, next(
+                    self.damage_alpha)), special_flags=pg.BLEND_RGBA_MULT)
             except:
                 self.damaged = False
         self.rect = self.image.get_rect()
@@ -134,7 +139,7 @@ class Mob(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.mobs
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.mob_img.copy()
+        self.image = game.mob_img[0].copy()
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.hit_rect = st.MOB_HIT_RECT.copy()
@@ -147,6 +152,9 @@ class Mob(pg.sprite.Sprite):
         self.health = st.MOB_HEALTH
         self.speed = choice(st.MOB_SPEEDS)
         self.target = game.player
+        self.last_anim = 0
+        self.current_image = game.mob_img[0]
+        self.pool = cycle(game.mob_img)
 
     def avoid_mobs(self):
         for mob in self.game.mobs:
@@ -155,19 +163,24 @@ class Mob(pg.sprite.Sprite):
                 if 0 < dist.length() < st.AVOID_RADIUS:
                     self.acc += dist.normalize()
 
+    def animate(self):
+        now = pg.time.get_ticks()
+        if now - self.last_anim > 20:
+            self.current_image = next(self.pool)
+            self.last_anim = now
+
     def update(self):
         target_dist = self.target.pos - self.pos
         if target_dist.length_squared() < st.DETECT_RADIUS**2:
             if random() < 0.002:
                 choice(self.game.zombie_moan_sounds).play()
             self.rot = target_dist.angle_to(vec(1, 0))
-            self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+            # self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+            self.image = pg.transform.rotate(self.current_image, self.rot)
             self.rect.center = self.pos
             self.acc = vec(1, 0).rotate(-self.rot)
             self.avoid_mobs()
-            # if self.speed not None:
             self.acc.scale_to_length(self.speed)
-            # vec.scale_to_length()
             self.acc += self.vel * -1
             self.vel += self.acc * self.game.dt
             self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
@@ -180,6 +193,7 @@ class Mob(pg.sprite.Sprite):
             choice(self.game.zombie_hit_sounds).play()
             self.kill()
             self.game.map_img.blit(self.game.splat, self.pos - vec(32, 32))
+        self.animate()
 
     def draw_health(self):
         if self.health > 60:
@@ -207,7 +221,8 @@ class Bullet(pg.sprite.Sprite):
         self.dir = dir
         self.rect.center = pos
         #spread = uniform(-GUN_SPREAD, GUN_SPREAD)
-        self.vel = dir * st.WEAPONS[game.player.weapon]['bullet_speed'] * uniform(0.9, 1.1)
+        self.vel = dir * \
+            st.WEAPONS[game.player.weapon]['bullet_speed'] * uniform(0.9, 1.1)
         self.spawn_time = pg.time.get_ticks()
         self.damage = damage
 
@@ -279,6 +294,63 @@ class Item(pg.sprite.Sprite):
         #     self.dir *= -1
         pass
 
+
+class Door(pg.sprite.Sprite):
+    def __init__(self, game, pos, type, image, link=None):
+        self._layer = st.ITEMS_LAYER
+        self.groups = game.all_sprites, game.items
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = image # game.item_images[type]
+        self.rect = self.image.get_rect()
+        self.hit_rect = self.rect
+        self.rect_origin = self.rect
+        self.type = type
+        self.link = link
+        self.pos = pos
+        self.rect.center = pos
+        self.tween = tween.easeInOutSine
+        self.step = 0
+        self.dir = 1
+        self.rot = 0
+        self.rot_speed = 5
+        self.last_update = pg.time.get_ticks()
+        self.new_image = image
+
+    def animate(self):      
+        if self.rot < 90:
+            now = pg.time.get_ticks()
+            if now - self.last_update > 100:
+                # self.current_image = next(self.pool)
+                # self.last_anim = now
+                # self.rot = (self.rot + self.rot_speed) % 360
+                # self.image = pg.transform.rotate(self.image, self.rot)
+                self.last_update = now
+                self.rot = (self.rot + self.rot_speed) % 90
+                self.new_image = pg.transform.rotate(self.image, self.rot)
+                old_center = self.rect.center
+                # self.image = new_image
+                self.hit_rect = self.new_image.get_rect()
+                # self.rect.center = old_center
+                self.hit_rect.bottomright = self.rect_origin.bottomleft
+                self.rect = self.hit_rect
+                # self.new_image.bottomright = self.rect.bottomleft
+                # self.hit_rect = self.rect
+        elif self.rot >= 90:
+            self.rot = 0
+
+    def update(self):
+        # self.animate()
+        #pg.draw.rect(screen, WHITE, p_rect, 2)
+        # bobbing motion
+        # offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
+        # self.rect.centery = self.pos.y + offset * self.dir
+        # self.step += st.BOB_SPEED
+        # if self.step > st.BOB_RANGE:
+        #     self.step = 0
+        #     self.dir *= -1
+        pass
+    
 
 class Light(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):

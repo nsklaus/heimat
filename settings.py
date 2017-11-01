@@ -30,15 +30,15 @@ PLAYER_ROT_SPEED = 200
 # PLAYER_IMG = 'manBlue_gun.png'
 # survivor-move_handgun_0
 # PLAYER_IMG = ['manBlue_gun.png', 'manBlue_gun2.png']
-PLAYER_IMG = ['survivor-move_handgun_0.png', 'survivor-move_handgun_1.png', 'survivor-move_handgun_3.png',
-              'survivor-move_handgun_4.png', 'survivor-move_handgun_4.png', 'survivor-move_handgun_6.png',
-              'survivor-move_handgun_7.png', 'survivor-move_handgun_8.png', 'survivor-move_handgun_9.png',
-              'survivor-move_handgun_10.png', 'survivor-move_handgun_11.png', 'survivor-move_handgun_12.png',
-              'survivor-move_handgun_13.png', 'survivor-move_handgun_14.png', 'survivor-move_handgun_15.png',
-              'survivor-move_handgun_16.png', 'survivor-move_handgun_17.png', 'survivor-move_handgun_18.png',
-              'survivor-move_handgun_19.png']
+PLAYER_IMG = ['survivor_handgun_0.png', 'survivor_handgun_1.png', 'survivor_handgun_3.png',
+              'survivor_handgun_4.png', 'survivor_handgun_4.png', 'survivor_handgun_6.png',
+              'survivor_handgun_7.png', 'survivor_handgun_8.png', 'survivor_handgun_9.png',
+              'survivor_handgun_10.png', 'survivor_handgun_11.png', 'survivor_handgun_12.png',
+              'survivor_handgun_13.png', 'survivor_handgun_14.png', 'survivor_handgun_15.png',
+              'survivor_handgun_16.png', 'survivor_handgun_17.png', 'survivor_handgun_18.png',
+              'survivor_handgun_19.png']
 PLAYER_HIT_RECT = pg.Rect(0, 0, 35, 35)
-BARREL_OFFSET = vec(30, 10)
+BARREL_OFFSET = vec(50, 15)
 
 # Weapon settings
 BULLET_IMG = 'bullet.png'
@@ -61,7 +61,12 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'bullet_count': 12}
 
 # Mob settings
-MOB_IMG = 'zombie1_hold.png'
+# MOB_IMG = 'zombie1_hold.png'
+MOB_IMG = ['zombie-move_0.png','zombie-move_1.png','zombie-move_2.png','zombie-move_3.png',
+          'zombie-move_4.png','zombie-move_5.png','zombie-move_6.png','zombie-move_7.png',
+          'zombie-move_8.png','zombie-move_9.png','zombie-move_10.png','zombie-move_11.png',
+          'zombie-move_12.png','zombie-move_13.png','zombie-move_14.png','zombie-move_15.png',
+          'zombie-move_16.png']
 MOB_SPEEDS = [150, 100, 75, 125]
 MOB_HIT_RECT = pg.Rect(0, 0, 30, 30)
 MOB_HEALTH = 100
@@ -104,8 +109,8 @@ PLAYER_HIT_SOUNDS = ['pain/8.ogg', 'pain/9.ogg', 'pain/10.ogg', 'pain/11.ogg']
 ZOMBIE_MOAN_SOUNDS = ['brains2.ogg', 'brains3.ogg', 'zombie-roar-1.ogg', 'zombie-roar-2.ogg',
                       'zombie-roar-3.ogg', 'zombie-roar-5.ogg', 'zombie-roar-6.ogg', 'zombie-roar-7.ogg']
 ZOMBIE_HIT_SOUNDS = ['splat-15.ogg']
-WEAPON_SOUNDS = {'pistol': ['pistol.ogg'],
-                 'shotgun': ['shotgun.ogg']}
+WEAPON_SOUNDS = {'pistol': 'pistol.ogg',
+                 'shotgun': 'shotgun.ogg'}
 EFFECTS_SOUNDS = {'level_start': 'level_start.ogg',
                   'health_up': 'health_pack.ogg',
                   'gun_pickup': 'gun_pickup.ogg'}
