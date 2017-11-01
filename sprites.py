@@ -318,26 +318,32 @@ class Door(pg.sprite.Sprite):
         self.new_image = image
 
     def animate(self):      
-        if self.rot < 90:
-            now = pg.time.get_ticks()
-            if now - self.last_update > 100:
-                # self.current_image = next(self.pool)
-                # self.last_anim = now
-                # self.rot = (self.rot + self.rot_speed) % 360
-                # self.image = pg.transform.rotate(self.image, self.rot)
-                self.last_update = now
-                self.rot = (self.rot + self.rot_speed) % 90
-                self.new_image = pg.transform.rotate(self.image, self.rot)
-                old_center = self.rect.center
-                # self.image = new_image
-                self.hit_rect = self.new_image.get_rect()
-                # self.rect.center = old_center
-                self.hit_rect.bottomright = self.rect_origin.bottomleft
-                self.rect = self.hit_rect
-                # self.new_image.bottomright = self.rect.bottomleft
-                # self.hit_rect = self.rect
-        elif self.rot >= 90:
-            self.rot = 0
+        # if self.rot < 90:
+        #     now = pg.time.get_ticks()
+        #     if now - self.last_update > 100:
+        #         # self.current_image = next(self.pool)
+        #         # self.last_anim = now
+        #         # self.rot = (self.rot + self.rot_speed) % 360
+        #         # self.image = pg.transform.rotate(self.image, self.rot)
+        #         self.last_update = now
+        #         self.rot = (self.rot + self.rot_speed) % 90
+        #         self.new_image = pg.transform.rotate(self.image, self.rot)
+        #         old_center = self.rect.center
+        #         # self.image = new_image
+        #         self.hit_rect = self.new_image.get_rect()
+        #         # self.rect.center = old_center
+        #         self.hit_rect.bottomright = self.rect_origin.bottomleft
+        #         self.rect = self.hit_rect
+        #         # self.new_image.bottomright = self.rect.bottomleft
+        #         # self.hit_rect = self.rect
+        # elif self.rot >= 90:
+        #     self.rot = 0
+        self.new_image = pg.transform.rotate(self.image, 90)
+        self.hit_rect = self.new_image.get_rect()
+        # self.hit_rect.height /=2
+        self.hit_rect.topright = self.rect_origin.bottomleft
+        
+        self.rect = self.hit_rect
 
     def update(self):
         # self.animate()

@@ -210,17 +210,16 @@ class Game:
                 self.player.add_health(st.HEALTH_PACK_AMOUNT)
 
             if hit.type == 'door':
-                hit.animate()
-                # print("hitting door !")
-            #     new_map = hit.link+'.tmx'
-            #     if path.exists(path.join(self.map_folder, new_map)):
-            #         self.room_switch = True
-            #         self.previous_room = self.current_room
-            #         self.next_room = new_map
-            #         self.player_rot = self.player.rot
-            #         self.new(new_map)
-            #     else:
-            #         print(f"room ---{new_map} doesn't exist yet")
+            #    hit.animate()
+                new_map = hit.link+'.tmx'
+                if path.exists(path.join(self.map_folder, new_map)):
+                    self.room_switch = True
+                    self.previous_room = self.current_room
+                    self.next_room = new_map
+                    self.player_rot = self.player.rot
+                    self.new(new_map)
+                else:
+                    print(f"room ---{new_map} doesn't exist yet")
 
     def hit_mob(self):
         if self.player:
@@ -293,10 +292,10 @@ class Game:
                     my_x = self.camera.apply(sprite).centerx
                     my_y = self.camera.apply(sprite).centery
                     pg.draw.circle(self.screen, st.RED, (my_x, my_y), st.DETECT_RADIUS, 2)
-            if not isinstance(sprite, sp.Door):
-                self.screen.blit(sprite.image, self.camera.apply(sprite))
-            if isinstance(sprite, sp.Door):
-                self.screen.blit(sprite.new_image, self.camera.apply(sprite))
+            # if not isinstance(sprite, sp.Door):
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            #if isinstance(sprite, sp.Door):
+            #    self.screen.blit(sprite.new_image, self.camera.apply(sprite))
                 # print(sprite)
             if self.draw_debug:
                 self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
