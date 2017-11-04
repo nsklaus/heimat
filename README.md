@@ -9,6 +9,8 @@ action = x
 quit = esc   
 night = n   
 shot = space   
+fullscreen = f
+movements = arrows 
     
 <img src="https://github.com/nsklaus/heimat/blob/master/img/screen2.png" width="150" height="213"> <img src="https://github.com/nsklaus/heimat/blob/master/img/screen1.png" width="150" height="213">   
 
