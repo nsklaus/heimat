@@ -1,6 +1,6 @@
 # heimat
 
-this is a topdown game. i'm experimenting with pygame/python.
+this is a topdown game. i'm experimenting with pygame/python.   
 todo: pathfinding, map screen, inventory screen ..
     
 keys:   
