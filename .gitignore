@@ -1,2 +1,6 @@
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 __pycache__/
+ouput.py
+output.txt
+*.pyc
+.idea

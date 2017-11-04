@@ -24,7 +24,7 @@ class Game:
         self.player_rot = 0
         self.previous_room = None
         self.current_room = 'map1.tmx'
-        self.next_room =''
+        self.next_room = ''
         self.room_switch = False
         self.initial = True
         self.fog = pg.Surface((st.WIDTH, st.HEIGHT))
@@ -35,7 +35,7 @@ class Game:
     def draw_text(self, text, font_name, size, color, x, y):
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
-        text_rect = text_surface.get_rect(center= (x, y))
+        text_rect = text_surface.get_rect(center=(x, y))
         self.screen.blit(text_surface, text_rect)
 
     def set_mask(self, rot=None):
@@ -46,28 +46,34 @@ class Game:
             self.light_mask = pg.transform.rotate(self.light_mask, rot)
         self.light_rect = self.light_mask.get_rect()
 
-    def get_image(self, name):
+    def get_imgel(self, image, x, y, width, height):
+        imagedest = pg.Surface((width, height))
+        imagedest.blit(image, (0, 0), (x, y, width, height))
+        return imagedest
+
+    def get_image(self, name):  
+        """ -> pg.Surface """
         image = pg.image.load(path.join(self.img_folder, name))
         image = image.convert_alpha()
         return image
 
-    def get_sound(self, name, vol=None):
+    def get_sound(self, name, vol:float=None):
+        """ -> pg.Sound """
         sound = pg.mixer.Sound(path.join(self.snd_folder, name))
         if vol is not None:
             sound.set_volume(vol)
         return sound
 
     def load_image(self):
-        self.bullet_images = {}
-        self.item_images = {}
+        self.bullet_img = {}
+        self.item_img = {}
         self.gun_flashes = []
         self.player_img = []
         self.mob_img = []
-
-        self.bullet_images['lg'] = self.get_image(st.BULLET_IMG)
-        # self.mob_img = self.get_image(st.MOB_IMG)
-        self.splat = self.get_image(st.SPLAT)
-        self.splat = pg.transform.scale(self.splat, (64, 64))
+        self.doors_img = self.get_image(st.DOORS_IMG)
+        self.bullet_img['lg'] = self.get_image(st.BULLET_IMG)
+        self.splat_img = self.get_image(st.SPLAT_IMG)
+        self.splat_img = pg.transform.scale(self.splat_img, (64, 64))
 
         for img in st.PLAYER_IMG:
             self.player_img.append(self.get_image(img))
@@ -75,8 +81,8 @@ class Game:
             self.mob_img.append(self.get_image(img))
         for img in st.MUZZLE_FLASHES:
             self.gun_flashes.append(self.get_image(img))
-        for item in st.ITEM_IMAGES:
-            self.item_images[item] = self.get_image(st.ITEM_IMAGES[item])
+        for item in st.ITEM_IMG:
+            self.item_img[item] = self.get_image(st.ITEM_IMG[item])
 
     def load_sound(self):
         self.zombie_moan_sounds = []
@@ -133,29 +139,24 @@ class Game:
             center_y = (tmx_obj.y + tmx_obj.height / 2)
             obj_center = sp.vec(center_x, center_y)
 
-            if tmx_obj.name == 'door':
-                newpos = self.pos_in_newmap(tmx_obj)
-                image = self.map.tmxdata.get_tile_image_by_gid(tmx_obj.gid)
-                if newpos[1] is 'left' or newpos[1] is 'right':
-                    image = pg.transform.scale(image, (64, 128))
-                elif newpos[1] is 'top' or newpos[1] is 'bottom':
-                    image = pg.transform.scale(image, (128, 64))
-                sp.Door(self, obj_center, tmx_obj.name, image, tmx_obj.link)
-                if tmx_obj.link+'.tmx' == self.previous_room:
-                    self.player.pos = sp.vec(newpos[0])
-                    self.room_switch = False
-
-
             if tmx_obj.name == 'zombie':
                 sp.Mob(self, obj_center.x, obj_center.y)
 
             if tmx_obj.name == 'wall':
                 sp.Obstacle(self, tmx_obj.x, tmx_obj.y, tmx_obj.width, tmx_obj.height)
 
-            if tmx_obj.name in ['health', 'shotgun']:
+            if tmx_obj.name in ['health', 'shotgun', 'key']:
                 sp.Item(self, obj_center, tmx_obj.name)
 
+            if tmx_obj.name == 'door':
+                newpos = self.pos_in_newmap(tmx_obj)
+                sp.Door(self, obj_center, tmx_obj.dir, tmx_obj.link)
+                if tmx_obj.link+'.tmx' == self.previous_room:
+                    self.player.pos = sp.vec(newpos[0])
+                    self.room_switch = False
+
     def pos_in_newmap(self, door):
+        """ -> list """
         newpos = ['','']
         tempx = 0
         tempy = 0
@@ -210,16 +211,21 @@ class Game:
                 self.player.add_health(st.HEALTH_PACK_AMOUNT)
 
             if hit.type == 'door':
-            #    hit.animate()
-                new_map = hit.link+'.tmx'
-                if path.exists(path.join(self.map_folder, new_map)):
-                    self.room_switch = True
-                    self.previous_room = self.current_room
-                    self.next_room = new_map
-                    self.player_rot = self.player.rot
-                    self.new(new_map)
-                else:
-                    print(f"room ---{new_map} doesn't exist yet")
+                if self.player.action:
+                    hit.change_state()
+                    self.player.action = False
+
+
+    def go_next(self, newroom):
+        new_map = newroom+'.tmx'
+        if path.exists(path.join(self.map_folder, new_map)):
+            self.room_switch = True
+            self.previous_room = self.current_room
+            self.next_room = new_map
+            self.player_rot = self.player.rot
+            self.new(new_map)
+        else:
+            print(f"room ---{new_map} doesn't exist yet")
 
     def hit_mob(self):
         if self.player:
@@ -276,40 +282,34 @@ class Game:
         pg.draw.rect(surf, st.WHITE, outline_rect, 2)
 
     def render_fog(self):
-        # draw the light mask (gradient) onto fog image
-        self.fog.fill(st.NIGHT_COLOR)
-        self.light_rect.center = self.camera.apply(self.player).center
-        self.fog.blit(self.light_mask, self.light_rect)
-        self.screen.blit(self.fog, (0, 0), special_flags=pg.BLEND_MULT)
+        if self.night:
+            pg.Surface.fill(self.fog, st.NIGHT_COLOR)
+            self.light_rect.center = self.camera.apply(self.player).center
+            pg.Surface.blit(self.fog, self.light_mask, self.light_rect )
+            pg.Surface.blit(self.screen, self.fog, (0, 0), special_flags=pg.BLEND_MULT )
 
     def draw(self):
-        # pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-        self.screen.blit(self.map_img, self.camera.apply(self.map))
-        for sprite in self.all_sprites:
-            if isinstance(sprite, sp.Mob):
-                sprite.draw_health()
-                if self.draw_debug:
-                    my_x = self.camera.apply(sprite).centerx
-                    my_y = self.camera.apply(sprite).centery
-                    pg.draw.circle(self.screen, st.RED, (my_x, my_y), st.DETECT_RADIUS, 2)
-            # if not isinstance(sprite, sp.Door):
-            self.screen.blit(sprite.image, self.camera.apply(sprite))
-            #if isinstance(sprite, sp.Door):
-            #    self.screen.blit(sprite.new_image, self.camera.apply(sprite))
-                # print(sprite)
-            if self.draw_debug:
-                self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
-                pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+        pg.Surface.blit(self.screen, self.map_img, self.camera.apply(self.map))
+        self.draw_player_health(self.screen, 10, 10, self.player.health / st.PLAYER_HEALTH)
+        self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
+        self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
+        
         if self.draw_debug:
             for wall in self.walls:
                 pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(wall.rect), 1)
-        if self.night:
-            self.render_fog()
-        if self.paused:
-            self.screen.blit(self.dim_screen, (0, 0))
-            self.draw_text('Zombies: {}'.format(len(self.mobs)),
-                            self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
-        self.draw_player_health(self.screen, 10, 10, self.player.health / st.PLAYER_HEALTH)
+            for sprite in self.all_sprites:
+                pg.Surface.blit(self.screen, sprite.image, self.camera.apply(sprite))
+                pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(sprite.hit_rect), 1)
+                pg.draw.rect(self.screen, st.BROWN, self.camera.apply_rect(sprite.rect), 2)
+                if isinstance(sprite, sp.Mob):
+                    my_x = self.camera.apply(sprite).centerx
+                    my_y = self.camera.apply(sprite).centery
+                    pg.draw.circle(self.screen, st.RED, (my_x, my_y), st.DETECT_RADIUS, 2)
+        else:
+            for sprite in self.all_sprites:
+                 pg.Surface.blit(self.screen, sprite.image, self.camera.apply(sprite))
+
+        self.render_fog()
         pg.display.flip()
 
     def events(self):
@@ -317,34 +317,28 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
+
+            if event.type == pg.KEYUP:
+                if event.key == pg.K_x:
+                    self.player.action=False
+
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.quit()
+                if event.key == pg.K_x:
+                    self.player.action=True
                 if event.key == pg.K_h:
                     self.draw_debug = not self.draw_debug
                 if event.key == pg.K_p:
                     self.paused = not self.paused
                 if event.key == pg.K_n:
                     self.night = not self.night
+                if event.key == pg.K_ESCAPE:
+                    self.quit()
                 if event.key == pg.K_f:
                     if pg.display.get_driver()=='x11':
                         pg.display.toggle_fullscreen()
                 if event.key == pg.K_d:
                     # debug output:
-                    print("all_sprite_size={}".format(len(self.all_sprites.sprites())))
-                    print(f"current_room={self.current_room} || previous_room={self.previous_room}")
-                    print(f"self.player_rot={self.player_rot}")
-                    mob_nbr = 0
-                    player_nbr = 0
-                    for sprite in self.all_sprites:
-                        if isinstance(sprite, sp.Player):
-                            player_nbr +=1
-                        if isinstance(sprite, sp.Mob):
-                            mob_nbr +=1
-                            print(f"mob_nbr={mob_nbr}\
-                                    || player_nbr={player_nbr}\
-                                    || target_pos={sprite.target.pos}\
-                                    || player_pos={self.player.pos}")
+                    print("player action = ",self.player.action)
 
     def show_start_screen(self):
         pass

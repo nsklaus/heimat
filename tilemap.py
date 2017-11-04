@@ -3,6 +3,7 @@ import pytmx
 import settings as st
 
 def collide_hit_rect(one, two):
+    """ -> bool """
     return one.hit_rect.colliderect(two.rect)
 
 class Map:
@@ -35,6 +36,7 @@ class TiledMap:
                                             y * self.tmxdata.tileheight))
 
     def make_map(self):
+        """ -> pg.Surface """
         temp_surface = pg.Surface((self.width, self.height))
         self.render(temp_surface)
         return temp_surface
@@ -46,9 +48,11 @@ class Camera:
         self.height = height
 
     def apply(self, entity):
+        """ -> pg.Rect """
         return entity.rect.move(self.camera.topleft)
 
     def apply_rect(self, rect):
+        """ -> pg.Rect """
         return rect.move(self.camera.topleft)
 
     def update(self, target):

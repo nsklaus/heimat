@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="19">
+<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="28">
  <tileset firstgid="1" name="test_dungeon" tilewidth="64" tileheight="64" tilecount="160" columns="4">
   <image source="../img/test_dungeon.png" width="256" height="2560"/>
  </tileset>
@@ -32,7 +32,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,34,35,34,35,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,38,39,38,39,0,
-0,0,0,109,0,0,0,0,0,0,0,0,0,0,0,0,0,111,0,0,
+0,0,0,109,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,49,49,0,81,82,83,84,0,0,0,0,0,0,0,
@@ -68,14 +68,18 @@
   <object id="15" name="zombie" gid="110" x="192" y="832" width="64" height="64"/>
  </objectgroup>
  <objectgroup name="item">
-  <object id="17" name="door" gid="118" x="576" y="1280" width="128" height="64">
+  <object id="20" name="door" gid="111" x="1216" y="704" width="64" height="128">
    <properties>
-    <property name="link" value="map3"/>
+    <property name="dir" value="right"/>
+    <property name="link" value="map2"/>
    </properties>
   </object>
-  <object id="18" name="door" gid="120" x="1216" y="704" width="64" height="128">
+  <object id="25" name="key" gid="112" x="1024" y="960" width="64" height="64"/>
+  <object id="26" name="health" gid="108" x="320" y="256" width="64" height="64"/>
+  <object id="27" name="door" gid="115" x="576" y="1280" width="128" height="64">
    <properties>
-    <property name="link" value="map2"/>
+    <property name="dir" value="bottom"/>
+    <property name="link" value="map3"/>
    </properties>
   </object>
  </objectgroup>

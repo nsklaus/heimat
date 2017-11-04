@@ -50,6 +50,7 @@ class Player(pg.sprite.Sprite):
         self.health = st.PLAYER_HEALTH
         self.weapon = 'pistol'
         self.damaged = False
+        self.action = False
 
     def animate(self):
         now = pg.time.get_ticks()
@@ -80,8 +81,17 @@ class Player(pg.sprite.Sprite):
         elif keys[pg.K_SPACE]:
             self.shoot()
 
+        # elif keys[pg.K_c]:
+        #     self.action=True
+        # else: 
+        #     self.action=False
+
         if any([keys[pg.K_DOWN], keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT]]):
             self.animate()
+
+    def opening(self):
+        self.action = not self.action
+        print("action = ",self.action)
 
     def shoot(self):
         now = pg.time.get_ticks()
@@ -107,7 +117,9 @@ class Player(pg.sprite.Sprite):
         self.damage_alpha = chain(st.DAMAGE_ALPHA * 4)
 
     def update(self):
+        
         self.get_keys()
+        # print("action=",self.action)
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
 
         self.image = pg.transform.rotate(self.current_image, self.rot)
@@ -126,6 +138,8 @@ class Player(pg.sprite.Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
+
+
 
     def add_health(self, amount):
         self.health += amount
@@ -192,8 +206,9 @@ class Mob(pg.sprite.Sprite):
         if self.health <= 0:
             choice(self.game.zombie_hit_sounds).play()
             self.kill()
-            self.game.map_img.blit(self.game.splat, self.pos - vec(32, 32))
+            self.game.map_img.blit(self.game.splat_img, self.pos - vec(32, 32))
         self.animate()
+        self.draw_health()
 
     def draw_health(self):
         if self.health > 60:
@@ -214,7 +229,7 @@ class Bullet(pg.sprite.Sprite):
         self.groups = game.all_sprites, game.bullets
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.bullet_images[st.WEAPONS[game.player.weapon]['bullet_size']]
+        self.image = game.bullet_img[st.WEAPONS[game.player.weapon]['bullet_size']]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.pos = vec(pos)
@@ -268,16 +283,15 @@ class MuzzleFlash(pg.sprite.Sprite):
 
 
 class Item(pg.sprite.Sprite):
-    def __init__(self, game, pos, type, link=None):
+    def __init__(self, game, pos, type):
         self._layer = st.ITEMS_LAYER
         self.groups = game.all_sprites, game.items
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = game.item_images[type]
+        self.image = game.item_img[type]
         self.rect = self.image.get_rect()
         self.hit_rect = self.rect
         self.type = type
-        self.link = link
         self.pos = pos
         self.rect.center = pos
         self.tween = tween.easeInOutSine
@@ -286,76 +300,112 @@ class Item(pg.sprite.Sprite):
 
     def update(self):
         # bobbing motion
-        # offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
-        # self.rect.centery = self.pos.y + offset * self.dir
-        # self.step += st.BOB_SPEED
-        # if self.step > st.BOB_RANGE:
-        #     self.step = 0
-        #     self.dir *= -1
-        pass
+        offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
+        self.rect.centery = self.pos.y + offset * self.dir
+        self.step += st.BOB_SPEED
+        if self.step > st.BOB_RANGE:
+            self.step = 0
+            self.dir *= -1
 
 
 class Door(pg.sprite.Sprite):
-    def __init__(self, game, pos, type, image, link=None):
+    def __init__(self, game, pos, dir, link):
         self._layer = st.ITEMS_LAYER
-        self.groups = game.all_sprites, game.items
+        self.groups = game.all_sprites, game.items, game.walls
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
-        self.image = image # game.item_images[type]
-        self.rect = self.image.get_rect()
-        self.hit_rect = self.rect
-        self.rect_origin = self.rect
-        self.type = type
+        self.type = 'door'
+        self.dir = dir
         self.link = link
         self.pos = pos
+        self.crossed = False
+        self.states = ['opened','closed']
+        self.pool = cycle(self.states)
+        self.status = 'closed'
+        self.door_states = self.create_img()
+        self.image = self.door_states[0]
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey((0, 0, 0))
+        self.hit_rect = self.rect
         self.rect.center = pos
-        self.tween = tween.easeInOutSine
-        self.step = 0
-        self.dir = 1
-        self.rot = 0
-        self.rot_speed = 5
-        self.last_update = pg.time.get_ticks()
-        self.new_image = image
 
-    def animate(self):      
-        # if self.rot < 90:
-        #     now = pg.time.get_ticks()
-        #     if now - self.last_update > 100:
-        #         # self.current_image = next(self.pool)
-        #         # self.last_anim = now
-        #         # self.rot = (self.rot + self.rot_speed) % 360
-        #         # self.image = pg.transform.rotate(self.image, self.rot)
-        #         self.last_update = now
-        #         self.rot = (self.rot + self.rot_speed) % 90
-        #         self.new_image = pg.transform.rotate(self.image, self.rot)
-        #         old_center = self.rect.center
-        #         # self.image = new_image
-        #         self.hit_rect = self.new_image.get_rect()
-        #         # self.rect.center = old_center
-        #         self.hit_rect.bottomright = self.rect_origin.bottomleft
-        #         self.rect = self.hit_rect
-        #         # self.new_image.bottomright = self.rect.bottomleft
-        #         # self.hit_rect = self.rect
-        # elif self.rot >= 90:
-        #     self.rot = 0
-        self.new_image = pg.transform.rotate(self.image, 90)
-        self.hit_rect = self.new_image.get_rect()
-        # self.hit_rect.height /=2
-        self.hit_rect.topright = self.rect_origin.bottomleft
-        
-        self.rect = self.hit_rect
+    def create_img(self):
+        if self.dir == 'left':
+            image1 = self.game.get_imgel(self.game.doors_img, 0, 128, 64, 128)
+            image2 = self.game.get_imgel(self.game.doors_img, 0, 64, 128, 64)
+        if self.dir == 'right':
+            image1 = self.game.get_imgel(self.game.doors_img, 64, 128, 64, 128)
+            image2 = self.game.get_imgel(self.game.doors_img, 0, 0, 128, 64)
+        if self.dir == 'bottom':
+            image1 = self.game.get_imgel(self.game.doors_img, 0, 64, 128, 64)
+            image2 = self.game.get_imgel(self.game.doors_img, 64, 128, 64, 128)
+        if self.dir == 'top':
+            image1 = self.game.get_imgel(self.game.doors_img, 0, 0, 128, 64)
+            image2 = self.game.get_imgel(self.game.doors_img, 0, 128, 64, 128)
+        door_states=[]
+        door_states.append(image1)
+        door_states.append(image2)
+        # print("door_states=",type(door_states),"of length=",len(door_states))
+        return door_states
+
+    def change_state(self):
+        if self.dir == 'left':
+            close_offset_x = self.pos.x - 32
+            close_offset_y = self.pos.y - 64
+            open_offset_x = self.pos.x + 32
+            open_offset_y = self.pos.y + 32
+        if self.dir == 'right':
+            close_offset_x = self.pos.x - 32
+            close_offset_y = self.pos.y - 64
+            open_offset_x = self.pos.x - 155
+            open_offset_y = self.pos.y + 35
+        if self.dir == 'top':
+            close_offset_x = self.pos.x - 64
+            close_offset_y = self.pos.y - 32
+            open_offset_x = self.pos.x + 32
+            open_offset_y = self.pos.y + 32
+        if self.dir == 'bottom':
+            close_offset_x = self.pos.x - 64
+            close_offset_y = self.pos.y - 32
+            open_offset_x = self.pos.x - 96
+            open_offset_y = self.pos.y - 155
+
+        newstatus = next(self.pool)
+        if newstatus== 'closed':
+            print('closed')
+            self.image = self.door_states[0]
+            self.rect = self.image.get_rect()
+            self.rect.x = close_offset_x
+            self.rect.y = close_offset_y
+            self.status = 'closed'
+            
+        elif newstatus == 'opened':
+            print('opened')
+            self.image = self.door_states[1]
+            self.image.set_colorkey((0, 0, 0))
+            self.rect = self.image.get_rect()
+            self.rect.x = open_offset_x
+            self.rect.y = open_offset_y
+            self.status = 'opened'
+            # print(self.pool)
 
     def update(self):
-        # self.animate()
-        #pg.draw.rect(screen, WHITE, p_rect, 2)
-        # bobbing motion
-        # offset = st.BOB_RANGE * (self.tween(self.step / st.BOB_RANGE) - 0.5)
-        # self.rect.centery = self.pos.y + offset * self.dir
-        # self.step += st.BOB_SPEED
-        # if self.step > st.BOB_RANGE:
-        #     self.step = 0
-        #     self.dir *= -1
-        pass
+        if self.status == 'opened':
+            if self.dir == 'left':
+                if self.game.player.hit_rect.right < self.hit_rect.right:
+                    self.game.go_next(self.link)
+            if self.dir == 'right':
+                if self.game.player.hit_rect.left > self.hit_rect.left:
+                    self.game.go_next(self.link)
+            if self.dir == 'top':
+                if self.game.player.hit_rect.bottom < self.hit_rect.top:
+                    self.game.go_next(self.link)
+            if self.dir == 'bottom':
+                if self.game.player.hit_rect.top > self.hit_rect.bottom:
+                    self.game.go_next(self.link)
+
+
+
     
 
 class Light(pg.sprite.Sprite):
