@@ -112,6 +112,7 @@ class Game:
         self.load_image()
         self.load_sound()
         self.player = sp.Player(self, 256, 128)
+        # st.PLAYER_HEALTH = 100
         self.player.rot = self.player_rot # remember facing direction when entering new rooms
         self.load_map(map_name)
         self.camera = tm.Camera(self.map.width, self.map.height)
@@ -205,7 +206,7 @@ class Game:
         hits = pg.sprite.spritecollide(self.player, self.items, False)
         for hit in hits:
 
-            if hit.type == 'health' and self.player.health < st.PLAYER_HEALTH:
+            if hit.type == 'health' and  st.PLAYER_HEALTH < 100:
                 hit.kill()
                 self.effects_sounds['health_up'].play()
                 self.player.add_health(st.HEALTH_PACK_AMOUNT)
@@ -238,9 +239,10 @@ class Game:
             for hit in hits:
                 if random() < 0.7:
                     choice(self.player_hit_sounds).play()
-                self.player.health -= st.MOB_DAMAGE
+                # self.player.health -= st.MOB_DAMAGE
+                st.PLAYER_HEALTH -= st.MOB_DAMAGE
                 hit.vel = sp.vec(0, 0)
-                if self.player.health <= 0:
+                if st.PLAYER_HEALTH <= 0:
                     self.playing = False
             if hits:
                 self.player.hit()
@@ -294,7 +296,7 @@ class Game:
 
     def draw(self):
         pg.Surface.blit(self.screen, self.map_img, self.camera.apply(self.map))
-        self.draw_player_health(self.screen, 10, 10, self.player.health / st.PLAYER_HEALTH)
+        self.draw_player_health(self.screen, 10, 10, st.PLAYER_HEALTH / 100)
         self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
         self.draw_text('Ammo: {}'.format(st.AMMO), self.hud_font, 30, st.WHITE, st.WIDTH - 300, 10)
         self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
@@ -344,6 +346,7 @@ class Game:
                 if event.key == pg.K_d:
                     # debug output:
                     print("player action = ",self.player.action)
+                    print("health=",st.PLAYER_HEALTH)
 
     def show_start_screen(self):
         pass

@@ -142,12 +142,10 @@ class Player(pg.sprite.Sprite):
         collide_with_walls(self, self.game.walls, 'y')
         self.rect.center = self.hit_rect.center
 
-
-
     def add_health(self, amount):
-        self.health += amount
-        if self.health > st.PLAYER_HEALTH:
-            self.health = st.PLAYER_HEALTH
+        st.PLAYER_HEALTH += amount
+        if  st.PLAYER_HEALTH > 100:
+            st.PLAYER_HEALTH = 100
 
 
 class Mob(pg.sprite.Sprite):
@@ -375,7 +373,6 @@ class Door(pg.sprite.Sprite):
 
         newstatus = next(self.pool)
         if newstatus== 'closed':
-            print('closed')
             self.image = self.door_states[0]
             self.rect = self.image.get_rect()
             self.rect.x = close_offset_x
@@ -383,14 +380,12 @@ class Door(pg.sprite.Sprite):
             self.status = 'closed'
             
         elif newstatus == 'opened':
-            print('opened')
             self.image = self.door_states[1]
             self.image.set_colorkey((0, 0, 0))
             self.rect = self.image.get_rect()
             self.rect.x = open_offset_x
             self.rect.y = open_offset_y
             self.status = 'opened'
-            # print(self.pool)
 
     def update(self):
         if self.status == 'opened':
