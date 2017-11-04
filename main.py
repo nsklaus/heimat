@@ -111,7 +111,7 @@ class Game:
         self.items = pg.sprite.Group()
         self.load_image()
         self.load_sound()
-        self.player = sp.Player(self, 128, 128)
+        self.player = sp.Player(self, 256, 128)
         self.player.rot = self.player_rot # remember facing direction when entering new rooms
         self.load_map(map_name)
         self.camera = tm.Camera(self.map.width, self.map.height)
@@ -145,7 +145,7 @@ class Game:
             if tmx_obj.name == 'wall':
                 sp.Obstacle(self, tmx_obj.x, tmx_obj.y, tmx_obj.width, tmx_obj.height)
 
-            if tmx_obj.name in ['health', 'shotgun', 'key']:
+            if tmx_obj.name in ['health', 'shotgun', 'key', 'ammo']:
                 sp.Item(self, obj_center, tmx_obj.name)
 
             if tmx_obj.name == 'door':
@@ -215,6 +215,10 @@ class Game:
                     hit.change_state()
                     self.player.action = False
 
+            if hit.type == 'ammo':
+                hit.kill()
+                self.effects_sounds['health_up'].play()
+                st.AMMO += 12
 
     def go_next(self, newroom):
         new_map = newroom+'.tmx'
@@ -292,6 +296,7 @@ class Game:
         pg.Surface.blit(self.screen, self.map_img, self.camera.apply(self.map))
         self.draw_player_health(self.screen, 10, 10, self.player.health / st.PLAYER_HEALTH)
         self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
+        self.draw_text('Ammo: {}'.format(st.AMMO), self.hud_font, 30, st.WHITE, st.WIDTH - 300, 10)
         self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
         
         if self.draw_debug:

@@ -51,6 +51,7 @@ class Player(pg.sprite.Sprite):
         self.weapon = 'pistol'
         self.damaged = False
         self.action = False
+        self.ammo = 12
 
     def animate(self):
         now = pg.time.get_ticks()
@@ -97,20 +98,22 @@ class Player(pg.sprite.Sprite):
         now = pg.time.get_ticks()
         if now - self.last_shot > st.WEAPONS[self.weapon]['rate']:
             self.last_shot = now
-            dir = vec(1, 0).rotate(-self.rot)
-            pos = self.pos + st.BARREL_OFFSET.rotate(-self.rot)
-            self.vel = vec(-st.WEAPONS[self.weapon]
-                           ['kickback'], 0).rotate(-self.rot)
-            for i in range(st.WEAPONS[self.weapon]['bullet_count']):
-                spread = uniform(-st.WEAPONS[self.weapon]
-                                 ['spread'], st.WEAPONS[self.weapon]['spread'])
-                Bullet(self.game, pos, dir.rotate(spread),
-                       st.WEAPONS[self.weapon]['damage'])
-                snd = self.game.weapon_sounds[self.weapon]
-                if snd.get_num_channels() > 2:
-                    snd.stop()
-                snd.play()
-            MuzzleFlash(self.game, pos)
+            if st.AMMO > 0:
+                dir = vec(1, 0).rotate(-self.rot)
+                pos = self.pos + st.BARREL_OFFSET.rotate(-self.rot)
+                self.vel = vec(-st.WEAPONS[self.weapon]
+                               ['kickback'], 0).rotate(-self.rot)
+                for i in range(st.WEAPONS[self.weapon]['bullet_count']):
+                    spread = uniform(-st.WEAPONS[self.weapon]
+                                     ['spread'], st.WEAPONS[self.weapon]['spread'])
+                    Bullet(self.game, pos, dir.rotate(spread),
+                           st.WEAPONS[self.weapon]['damage'])
+                    snd = self.game.weapon_sounds[self.weapon]
+                    if snd.get_num_channels() > 2:
+                        snd.stop()
+                    snd.play()
+                MuzzleFlash(self.game, pos)
+                st.AMMO -= 1
 
     def hit(self):
         self.damaged = True

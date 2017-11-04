@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="28">
+<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="34">
  <tileset firstgid="1" name="test_dungeon" tilewidth="64" tileheight="64" tilecount="160" columns="4">
   <image source="../img/test_dungeon.png" width="256" height="2560"/>
  </tileset>
@@ -51,7 +51,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="wall" visible="0">
+ <objectgroup name="wall">
   <object id="3" name="wall" x="64" y="0" width="1152" height="64"/>
   <object id="4" name="wall" x="0" y="0" width="64" height="1280"/>
   <object id="5" name="wall" x="1216" y="0" width="64" height="576"/>
@@ -63,6 +63,12 @@
   <object id="12" name="wall" x="384" y="896" width="576" height="64"/>
   <object id="13" name="wall" x="896" y="768" width="64" height="128"/>
   <object id="14" name="wall" x="896" y="384" width="64" height="128"/>
+  <object id="28" name="wall" x="576" y="384" width="256" height="64"/>
+  <object id="29" name="wall" x="384" y="384" width="64" height="128"/>
+  <object id="30" name="wall" x="448" y="384" width="64" height="64"/>
+  <object id="31" name="wall" x="384" y="704" width="64" height="128"/>
+  <object id="32" name="wall" x="1152" y="768" width="64" height="256"/>
+  <object id="33" name="wall" x="960" y="64" width="256" height="128"/>
  </objectgroup>
  <objectgroup name="enemy">
   <object id="15" name="zombie" gid="110" x="192" y="832" width="64" height="64"/>

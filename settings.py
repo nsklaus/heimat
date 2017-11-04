@@ -50,10 +50,10 @@ BULLET_IMG = 'bullet.png'
 WEAPONS = {}
 WEAPONS['pistol'] = {'bullet_speed': 500,
                      'bullet_lifetime': 1000,
-                     'rate': 250,
+                     'rate': 600,
                      'kickback': 200,
                      'spread': 5,
-                     'damage': 10,
+                     'damage': 20,
                      'bullet_size': 'lg',
                      'bullet_count': 1}
 WEAPONS['shotgun'] = {'bullet_speed': 400,
@@ -65,6 +65,7 @@ WEAPONS['shotgun'] = {'bullet_speed': 400,
                       'bullet_size': 'sm',
                       'bullet_count': 12}
 
+AMMO = 12
 # ===========================================================================================
 # Mob settings
 # ===========================================================================================
@@ -112,7 +113,8 @@ DOORS_IMG = 'doors.png'
 # ===========================================================================================
 ITEM_IMG = {'health': 'health_pack.png',
             'shotgun': 'obj_shotgun.png',
-            'key': 'key.png'}
+            'key': 'key.png',
+            'ammo': 'ammo.png'}
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3

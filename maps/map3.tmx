@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="34">
+<map version="1.0" tiledversion="1.0.2" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="64" tileheight="64" nextobjectid="43">
  <tileset firstgid="1" name="test_dungeon" tilewidth="64" tileheight="64" tilecount="160" columns="4">
   <image source="../img/test_dungeon.png" width="256" height="2560"/>
  </tileset>
@@ -54,7 +54,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="wall" visible="0">
+ <objectgroup name="wall">
   <object id="3" name="wall" x="64" y="0" width="512" height="64"/>
   <object id="4" name="wall" x="0" y="0" width="64" height="1280"/>
   <object id="5" name="wall" x="1216" y="0" width="64" height="576"/>
@@ -73,10 +73,18 @@
   <object id="19" name="wall" x="960" y="768" width="64" height="256"/>
   <object id="20" name="wall" x="960" y="384" width="64" height="256"/>
   <object id="21" name="wall" x="1024" y="384" width="64" height="64"/>
+  <object id="34" name="wall" x="704" y="832" width="256" height="64"/>
+  <object id="35" name="wall" x="320" y="832" width="128" height="128"/>
+  <object id="36" name="wall" x="768" y="448" width="192" height="128"/>
+  <object id="37" name="wall" x="832" y="64" width="256" height="64"/>
+  <object id="38" name="wall" x="1152" y="64" width="64" height="192"/>
+  <object id="39" name="wall" x="320" y="64" width="192" height="64"/>
+  <object id="40" name="wall" x="64" y="960" width="64" height="128"/>
  </objectgroup>
  <objectgroup name="enemy">
   <object id="23" name="zombie" gid="110" x="256" y="512" width="64" height="64"/>
   <object id="24" name="zombie" gid="270" x="768" y="1088" width="64" height="64"/>
+  <object id="42" name="zombie" gid="110" x="1088" y="512" width="64" height="64"/>
  </objectgroup>
  <objectgroup name="item">
   <object id="30" name="door" gid="111" x="1216" y="704" width="64" height="128">
@@ -97,5 +105,6 @@
     <property name="link" value=""/>
    </properties>
   </object>
+  <object id="41" name="ammo" gid="116" x="1088" y="1088" width="64" height="64"/>
  </objectgroup>
 </map>
