@@ -92,7 +92,7 @@ class Game:
         self.weapon_sounds = {}
 
         for mytype in st.EFFECTS_SOUNDS:
-            self.effects_sounds[mytype] = self.get_sound(st.EFFECTS_SOUNDS[mytype])
+            self.effects_sounds[mytype] = self.get_sound(st.EFFECTS_SOUNDS[mytype], 0.1)
         for weapon in st.WEAPON_SOUNDS:
             self.weapon_sounds[weapon] = self.get_sound(st.WEAPON_SOUNDS[weapon], 0.1)
         for snd in st.ZOMBIE_MOAN_SOUNDS:
@@ -146,8 +146,13 @@ class Game:
             if tmx_obj.name == 'wall':
                 sp.Obstacle(self, tmx_obj.x, tmx_obj.y, tmx_obj.width, tmx_obj.height)
 
-            if tmx_obj.name in ['health', 'shotgun', 'key', 'ammo']:
+            if tmx_obj.name in ['health', 'shotgun', 'ammo']:
+                #if tmx_obj.name == 'key' and not st.GOT_KEY:
                 sp.Item(self, obj_center, tmx_obj.name)
+
+            if tmx_obj.name == 'key':
+                if not st.GOT_KEY:
+                    sp.Item(self, obj_center, tmx_obj.name)
 
             if tmx_obj.name == 'door':
                 newpos = self.pos_in_newmap(tmx_obj)
@@ -214,12 +219,18 @@ class Game:
             if hit.type == 'door':
                 if self.player.action:
                     hit.change_state()
+                    self.effects_sounds['door'].play()
                     self.player.action = False
 
             if hit.type == 'ammo':
                 hit.kill()
-                self.effects_sounds['health_up'].play()
+                self.effects_sounds['gun_pickup'].play()
                 st.AMMO += 12
+
+            if hit.type == 'key':
+                hit.kill()
+                self.effects_sounds['health_up'].play()
+                st.GOT_KEY=True
 
     def go_next(self, newroom):
         new_map = newroom+'.tmx'
@@ -286,6 +297,12 @@ class Game:
             col = st.RED
         pg.draw.rect(surf, col, fill_rect)
         pg.draw.rect(surf, st.WHITE, outline_rect, 2)
+        if st.GOT_KEY:
+            keypic = self.item_img['key']
+            keypic = pg.transform.scale(keypic, (32, 32))
+            key_rect = keypic.get_rect(center=(145, 23))
+
+            pg.Surface.blit(self.screen, keypic, key_rect)
 
     def render_fog(self):
         if self.night:
@@ -299,9 +316,9 @@ class Game:
         self.draw_player_health(self.screen, 10, 10, st.PLAYER_HEALTH / 100)
         self.draw_text('Zombies: {}'.format(len(self.mobs)), self.hud_font, 30, st.WHITE, st.WIDTH - 100, 10)
         self.draw_text('Ammo: {}'.format(st.AMMO), self.hud_font, 30, st.WHITE, st.WIDTH - 300, 10)
-        self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
         
         if self.draw_debug:
+            self.draw_text("{:.2f} fps".format(self.clock.get_fps()), self.hud_font, 30, st.WHITE, 180, 16)
             for wall in self.walls:
                 pg.draw.rect(self.screen, st.CYAN, self.camera.apply_rect(wall.rect), 1)
             for sprite in self.all_sprites:

@@ -118,17 +118,19 @@ ITEM_IMG = {'health': 'health_pack.png',
 HEALTH_PACK_AMOUNT = 20
 BOB_RANGE = 10
 BOB_SPEED = 0.3
-
+GOT_KEY = False
 # ===========================================================================================
 #  Sounds
 # ===========================================================================================
-ZOMBIE_MOAN_SOUNDS = ['brains2.ogg', 'brains3.ogg', 'zombie-roar-1.ogg', 'zombie-roar-3.ogg',
-                      'zombie-roar-6.ogg', 'zombie-roar-7.ogg']
+ZOMBIE_MOAN_SOUNDS = ['brains2.ogg', 'brains3.ogg', 'zombie-roar-1.ogg', 'zombie-roar-2.ogg',
+                      'zombie-roar-3.ogg','zombie-roar-6.ogg', 'zombie-roar-7.ogg', 
+                      'zombie-roar-8.ogg']
 PLAYER_HIT_SOUNDS = ['pain/8.ogg', 'pain/9.ogg', 'pain/10.ogg', 'pain/11.ogg']
 ZOMBIE_HIT_SOUNDS = ['splat-15.ogg']
 EFFECTS_SOUNDS = {'level_start': 'level_start.ogg',
                   'health_up': 'health_pack.ogg',
-                  'gun_pickup': 'gun_pickup.ogg'}
+                  'gun_pickup': 'gun_pickup.ogg',
+                  'door': 'door.ogg'}
 WEAPON_SOUNDS = {'pistol': 'pistol.ogg',
                  'shotgun': 'shotgun.ogg'}
 BG_MUSIC = 'espionage.ogg'
