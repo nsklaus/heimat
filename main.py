@@ -13,6 +13,7 @@ class Game:
         pg.init()
         self.screen = pg.display.set_mode((st.WIDTH, st.HEIGHT))
         pg.display.set_caption(st.TITLE)
+        pg.mouse.set_visible(0)
         self.clock = pg.time.Clock()
         self.game_folder = path.dirname(__file__)
         self.img_folder = path.join(self.game_folder, 'img')
@@ -31,6 +32,12 @@ class Game:
         self.fog.fill(st.NIGHT_COLOR)
         self.dim_screen = pg.Surface(self.screen.get_size()).convert_alpha()
         self.dim_screen.fill((0, 0, 0, 180))
+        self.left = False
+        self.right = False
+        self.up = False
+        self.down = False
+        self.shoot = False
+        self.action = False
 
     def draw_text(self, text, font_name, size, color, x, y):
         font = pg.font.Font(font_name, size)
@@ -220,6 +227,7 @@ class Game:
                 if self.player.action:
                     hit.change_state()
                     self.effects_sounds['door'].play()
+                    self.action = False
                     self.player.action = False
 
             if hit.type == 'ammo':
@@ -343,12 +351,32 @@ class Game:
                 self.quit()
 
             if event.type == pg.KEYUP:
+                if event.key == pg.K_LEFT:
+                    self.left = False
+                if event.key == pg.K_RIGHT:
+                    self.right = False
+                if event.key == pg.K_UP:
+                    self.up = False
+                if event.key == pg.K_DOWN:
+                    self.down = False
+                if event.key == pg.K_w:
+                    self.action=False
                 if event.key == pg.K_x:
-                    self.player.action=False
+                    self.shoot=False
 
             if event.type == pg.KEYDOWN:
+                if event.key == pg.K_LEFT:
+                    self.left = True
+                if event.key == pg.K_RIGHT:
+                    self.right = True
+                if event.key == pg.K_UP:
+                    self.up = True
+                if event.key == pg.K_DOWN:
+                    self.down = True
+                if event.key == pg.K_w:
+                    self.action=True
                 if event.key == pg.K_x:
-                    self.player.action=True
+                    self.shoot=True
                 if event.key == pg.K_h:
                     self.draw_debug = not self.draw_debug
                 if event.key == pg.K_p:

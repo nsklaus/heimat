@@ -63,31 +63,28 @@ class Player(pg.sprite.Sprite):
         self.rot_speed = 0
         self.vel = vec(0, 0)
 
-        keys = pg.key.get_pressed()
-
-        if keys[pg.K_LEFT]:
+        if self.game.left:
             self.rot_speed = st.PLAYER_ROT_SPEED
             self.game.set_mask(self.rot)
 
-        elif keys[pg.K_RIGHT]:
+        elif self.game.right:
             self.rot_speed = -st.PLAYER_ROT_SPEED
             self.game.set_mask(self.rot)
 
-        elif keys[pg.K_UP]:
+        elif self.game.up:
             self.vel = vec(st.PLAYER_SPEED, 0).rotate(-self.rot)
 
-        elif keys[pg.K_DOWN]:
+        elif self.game.down:
             self.vel = vec(-st.PLAYER_SPEED / 2, 0).rotate(-self.rot)
 
-        elif keys[pg.K_SPACE]:
+        elif self.game.shoot:
             self.shoot()
 
-        # elif keys[pg.K_c]:
-        #     self.action=True
-        # else: 
-        #     self.action=False
+        elif self.game.action:
+            self.action=True
+        else: self.action = False
 
-        if any([keys[pg.K_DOWN], keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT]]):
+        if any([self.game.left, self.game.right, self.game.up, self.game.down]):
             self.animate()
 
     def opening(self):
@@ -119,14 +116,10 @@ class Player(pg.sprite.Sprite):
         self.damaged = True
         self.damage_alpha = chain(st.DAMAGE_ALPHA * 4)
 
-    def update(self):
-        
+    def update(self):        
         self.get_keys()
-        # print("action=",self.action)
         self.rot = (self.rot + self.rot_speed * self.game.dt) % 360
-
         self.image = pg.transform.rotate(self.current_image, self.rot)
-
         if self.damaged:
             try:
                 self.image.fill((255, 255, 255, next(
@@ -350,6 +343,9 @@ class Door(pg.sprite.Sprite):
         return door_states
 
     def change_state(self):
+        self.game.player.vel = vec(0, 0)
+        self.game.player.acc = vec(0, 0)
+        # self.game.player.pos = 
         if self.dir == 'left':
             close_offset_x = self.pos.x - 32
             close_offset_y = self.pos.y - 64
@@ -402,9 +398,6 @@ class Door(pg.sprite.Sprite):
                 if self.game.player.hit_rect.top > self.hit_rect.bottom:
                     self.game.go_next(self.link)
 
-
-
-    
 
 class Light(pg.sprite.Sprite):
     def __init__(self, game, x, y, w, h):
